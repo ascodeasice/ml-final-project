@@ -1,12 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "wouter";
 
-const SelectPage = () => {
+const ResultPage = () => {
   const [, navigate] = useLocation();
 
   return (
     <div>
-      <h1>SelectPage</h1>
+      <h1>ResultPage</h1>
       {/* placeholder image */}
       <div>
         <img src="https://picsum.photos/200/300" />
@@ -37,4 +37,4 @@ const SelectPage = () => {
   );
 };
 
-export default SelectPage;
+export default ResultPage;

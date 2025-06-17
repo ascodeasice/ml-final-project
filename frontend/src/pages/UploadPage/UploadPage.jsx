@@ -6,7 +6,7 @@ const UploadPage = () => {
   // TODO: fake function, replace with real api
   const generateImage = () => {
     console.log("generating image...");
-    navigate("/select");
+    navigate("/result");
   };
 
   return (
