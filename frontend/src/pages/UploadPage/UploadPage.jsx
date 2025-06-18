@@ -1,14 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
+import { TrophySpin } from "react-loading-indicators";
+
 
 const UploadPage = () => {
   const [, navigate] = useLocation();
-  // TODO: fake function, replace with real api
+  const [isLoading, setIsLoading] = useState(false);
 
+    // Simulate image processing (replace with your real function)
   const generateImage = () => {
-    console.log("generating image...");
-    navigate("/result");
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("Image processed");
+        resolve();
+      }, 3000); // simulate 3 sec process
+    });
   };
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      await generateImage(); // Replace with real API/upload
+      navigate("/result");
+    } catch (err) {
+      console.error("Processing failed:", err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const containerStyle = {
     display: "flex",
@@ -19,6 +40,19 @@ const UploadPage = () => {
     backgroundColor: "#f5f5f5",
     textAlign: "center",
     padding: "20px",
+  };
+
+    const overlayStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    zIndex: 9999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   };
 
   const titleStyle = {
@@ -79,8 +113,14 @@ const UploadPage = () => {
 
   return (
     <div style={containerStyle}>
+      {isLoading && (
+        <div style={overlayStyle}>
+          <TrophySpin color="#32cd32" size="large" text="Creating Your Vision..." textColor="#000" />
+        </div>
+      )}
+
       <h1 style={titleStyle}>Insert Your Image to Get Started</h1>
-      <h2 style={titleStyle}>Watch Your Creativity Take Shape</h2>
+      <h2>Watch Your Creativity Take Shape</h2>
 
       <div style={boxStyle}>Click / Drag Your Image Here</div>
 
@@ -101,7 +141,8 @@ const UploadPage = () => {
         </label>
       </div>
 
-      <button onClick={() => navigate("/result")} style={buttonStyle}>
+
+      <button onClick={handleConfirm} style={buttonStyle} disabled={isLoading}>
         Confirm
       </button>
     </div>
