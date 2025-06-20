@@ -1,115 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useLocation } from "wouter";
+import Cropper from "react-easy-crop";
 import { TrophySpin } from "react-loading-indicators";
-
+import getCroppedImg from "./cropUtils"; // utility we define below
 
 const UploadPage = () => {
   const [, navigate] = useLocation();
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [croppedImage, setCroppedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-    // Simulate image processing (replace with your real function)
-  const generateImage = () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("Image processed");
-        resolve();
-      }, 3000); // simulate 3 sec process
-    });
+  const onCropComplete = useCallback((_, croppedPixels) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImageSrc(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const showCroppedImage = async () => {
+    try {
+      const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
+      setCroppedImage(cropped);
+    } catch (e) {
+      console.error("Crop failed", e);
+    }
   };
 
   const handleConfirm = async () => {
     setIsLoading(true);
-    try {
-      await generateImage(); // Replace with real API/upload
-      navigate("/result");
-    } catch (err) {
-      console.error("Processing failed:", err);
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    await new Promise((r) => setTimeout(r, 2000));
+    navigate("/result");
+    setIsLoading(false);
   };
 
-
-  const containerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    backgroundColor: "#f5f5f5",
-    textAlign: "center",
-    padding: "20px",
-  };
-
-    const overlayStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "rgba(255, 255, 255, 0.85)",
-    zIndex: 9999,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
-  const titleStyle = {
-    fontSize: "2rem",
-    marginBottom: "20px",
-    fontWeight: "bold",
-  };
-
-  const boxStyle = {
-    width: "300px",
-    height: "300px",
-    border: "2px dashed #ccc",
-    borderRadius: "10px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: "20px",
-    backgroundColor: "#fff",
-    cursor: "pointer",
-    overflow: "hidden",
-    position: "relative",
-    color: "#999",
-    fontSize: "1rem",
-  };
-
-  const buttonStyle = {
-    backgroundColor: "#007bff",
-    color: "white",
-    border: "2px solid white",
-    borderRadius: "25px",
-    padding: "10px 20px",
-    fontSize: "1rem",
-    cursor: "pointer",
-    marginTop: "30px",
-  };
-
-  const checkboxContainerStyle = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    backgroundColor: "#fff",
-    padding: "15px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-    marginBottom: "20px",
-  };
-
-  const checkboxLabelStyle = {
-    fontSize: "1rem",
-    marginBottom: "8px",
-  };
-
-  const sectionTitleStyle = {
-    fontWeight: "bold",
-    marginBottom: "10px",
-    fontSize: "1.2rem",
-  };
+  const containerStyle = { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", backgroundColor: "#f5f5f5", padding: "20px", textAlign: "center" };
+  const overlayStyle = { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(255, 255, 255, 0.85)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" };
 
   return (
     <div style={containerStyle}>
@@ -119,32 +52,42 @@ const UploadPage = () => {
         </div>
       )}
 
-      <h1 style={titleStyle}>Insert Your Image to Get Started</h1>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold" }}>Insert Your Image to Get Started</h1>
       <h2>Watch Your Creativity Take Shape</h2>
 
-      <div style={boxStyle}>Click / Drag Your Image Here</div>
-
-      <div style={checkboxContainerStyle}>
-        <div style={sectionTitleStyle}>Choose Your Preferred Style!</div>
-
-        <label style={checkboxLabelStyle}>
-          <input type="checkbox" /> 3D Rendered Cartoon Style
+      {!imageSrc && (
+        <label style={{ margin: "20px", cursor: "pointer", padding: "20px", border: "2px dashed #ccc", borderRadius: "10px", backgroundColor: "#fff" }}>
+          Click to Upload JPG/PNG
+          <input type="file" accept=".jpg,.png" style={{ display: "none" }} onChange={handleImageChange} />
         </label>
-        <label style={checkboxLabelStyle}>
-          <input type="checkbox" /> Beauty Filter Style
-        </label>
-        <label style={checkboxLabelStyle}>
-          <input type="checkbox" /> Comic Style
-        </label>
-        <label style={checkboxLabelStyle}>
-          <input type="checkbox" /> All
-        </label>
-      </div>
+      )}
 
+      {imageSrc && !croppedImage && (
+        <div style={{ position: "relative", width: "300px", height: "300px" }}>
+          <Cropper
+            image={imageSrc}
+            crop={crop}
+            zoom={zoom}
+            aspect={1}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+          />
+          <button onClick={showCroppedImage} style={{ marginTop: "20px" }}>Crop</button>
+        </div>
+      )}
 
-      <button onClick={handleConfirm} style={buttonStyle} disabled={isLoading}>
-        Confirm
-      </button>
+      {croppedImage && (
+        <div style={{ marginTop: "20px" }}>
+          <img src={croppedImage} alt="cropped" style={{ width: "300px", height: "300px", objectFit: "cover", borderRadius: "10px", border: "1px solid #ccc" }} />
+        </div>
+      )}
+
+      {croppedImage && (
+        <button onClick={handleConfirm} style={{ marginTop: "30px", backgroundColor: "#007bff", color: "white", border: "2px solid white", borderRadius: "25px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
+          Confirm
+        </button>
+      )}
     </div>
   );
 };

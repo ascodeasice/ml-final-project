@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "wouter";
 
-const EditPage = () => {
+const PreviewPage = () => {
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -35,12 +35,11 @@ const EditPage = () => {
 
   return (
     <div style={containerStyle}>
-      <h1>Edit Page</h1>
+      <h1>Your Final Product</h1>
       <img src="https://picsum.photos/200/300" alt="To Edit" style={imageStyle} />
 
       {/* Button Group */}
       <div>
-        <button style={buttonStyle}>Crop</button>
         <button style={buttonStyle}>Save</button>
         <Link to="/result">
           <button style={buttonStyle}>Done</button>
@@ -50,4 +49,4 @@ const EditPage = () => {
   );
 };
 
-export default EditPage;
+export default PreviewPage;

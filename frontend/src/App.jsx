@@ -2,7 +2,8 @@ import { Route, Switch } from "wouter";
 import TitlePage from "./pages/TitlePage/TitlePage";
 import UploadPage from "./pages/UploadPage/UploadPage";
 import ResultPage from "./pages/ResultPage/ResultPage";
-import EditPage from "./pages/EditPage/EditPage";
+import EditPage from "./pages/PreviewPage/PreviewPage";
+import PreviewPage from "./pages/PreviewPage/PreviewPage";
 
 const App = () => (
   <>
@@ -14,7 +15,7 @@ const App = () => (
       <Route path="/" component={TitlePage} />
       <Route path="/upload" component={UploadPage} />
       <Route path="/result" component={ResultPage} />
-      <Route path="/edit" component={EditPage} />
+      <Route path="/preview" component={PreviewPage} />
       <Route>404: No such page!</Route>
     </Switch>
   </>

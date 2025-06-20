@@ -75,8 +75,8 @@ const ResultPage = () => {
         <div style={imageBlockStyle} key={index}>
           <img src={img} alt={`Generated ${index}`} style={resultImageStyle} />
           <div style={buttonRowStyle}>
-            <Link to="/edit">
-              <button style={resultButtonStyle}>Edit</button>
+            <Link to="/preview">
+              <button style={resultButtonStyle}>Preview</button>
             </Link>
             <button style={resultButtonStyle}>Download</button>
           </div>
