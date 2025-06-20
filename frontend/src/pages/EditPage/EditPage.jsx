@@ -42,7 +42,7 @@ const EditPage = () => {
       <div>
         <button style={buttonStyle}>Crop</button>
         <button style={buttonStyle}>Save</button>
-        <Link to="/">
+        <Link to="/result">
           <button style={buttonStyle}>Done</button>
         </Link>
       </div>
