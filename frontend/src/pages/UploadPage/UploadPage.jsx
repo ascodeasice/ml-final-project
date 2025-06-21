@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { TrophySpin } from "react-loading-indicators";
+import { useUploadedImage } from "../../stores/imageStore";
 
 const containerStyle = {
   display: "flex",
@@ -84,10 +85,9 @@ const sectionTitleStyle = {
 const UploadPage = () => {
   const [, navigate] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
+  const { uploadedImage, setUploadedImage } = useUploadedImage();
   const [previewUrl, setPreviewUrl] = useState(null);
-
 
   const [selectedStyles, setSelectedStyles] = useState({
     cartoon3D: false,
@@ -125,7 +125,7 @@ const UploadPage = () => {
   };
 
   const handleConfirm = async () => {
-    if (!imageFile) {
+    if (!uploadedImage) {
       alert("請先選擇一張圖片");
       return;
     }
@@ -134,7 +134,7 @@ const UploadPage = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", imageFile); // 注意這裡名稱要和 FastAPI 接口的參數名一致
+      formData.append("file", uploadedImage); // 注意這裡名稱要和 FastAPI 接口的參數名一致
 
       // TODO: allow different url
       const response = await fetch("http://localhost:8000/generate", {
@@ -165,7 +165,7 @@ const UploadPage = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setImageFile(file);
+      setUploadedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
       console.log("選擇的圖片檔案：", file);
     }
@@ -175,7 +175,7 @@ const UploadPage = () => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (file) {
-      setImageFile(file);
+      setUploadedImage(file);
       setPreviewUrl(URL.createObjectURL(file)); // ← 預覽圖片
       console.log("拖曳的圖片檔案：", file);
     }
