@@ -89,7 +89,7 @@ const ResultPage = () => {
             style={resultImageStyle}
           />
           <div style={buttonRowStyle}>
-            <Link to="/preview">
+            <Link to={`/preview/${index}`}>
               <button style={resultButtonStyle}>Preview</button>
             </Link>
             <button

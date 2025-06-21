@@ -15,7 +15,7 @@ const App = () => (
       <Route path="/" component={TitlePage} />
       <Route path="/upload" component={UploadPage} />
       <Route path="/result" component={ResultPage} />
-      <Route path="/preview" component={PreviewPage} />
+      <Route path="/preview/:id" component={PreviewPage} />
       <Route>404: No such page!</Route>
     </Switch>
   </>
