@@ -1,5 +1,6 @@
 import os
-from fastapi import FastAPI, File, UploadFile
+from typing import List
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image, ImageDraw
@@ -27,39 +28,49 @@ def read_root():
 
 
 # TODO: use real models
-# TODO: more parameters
 @app.post("/generate")
-async def generate_images(file: UploadFile = File(...)):
+async def generate_images(file: UploadFile = File(...), styles: List[str] = Form(...)):
     """
-    接收圖片、繪製黑線、回傳 base64 和 UUID，並儲存圖片到 ./images 資料夾。
+    根據 styles 清單產生多張圖片，每種風格一張，回傳 UUID 和 base64 列表。
     """
-    # 讀取圖片並轉換為 RGB
-    image = Image.open(file.file).convert("RGB")
-    width, height = image.size
+    original_image = Image.open(file.file).convert("RGB")
+    width, height = original_image.size
 
-    # 繪製圖片中間的黑線
-    draw = ImageDraw.Draw(image)
-    center_x = width // 2
-    draw.line([(center_x, 0), (center_x, height)], fill="black", width=3)
+    results = []  # 存每張處理後圖片的 base64 和 UUID
 
-    # 產生 UUID 並設定檔名
-    image_id = str(uuid.uuid4())
-    filename = f"{image_id}.jpg"
-    save_dir = "./images"
-    os.makedirs(save_dir, exist_ok=True)  # 確保目錄存在
-    save_path = os.path.join(save_dir, filename)
+    for style in styles:
+        image = original_image.copy()
+        draw = ImageDraw.Draw(image)
 
-    # 儲存圖片到本地
-    image.save(save_path, format="JPEG")
+        # 根據風格進行不同處理（範例處理）
+        if style == "cartoon3D":
+            draw.line([(width // 4, 0), (width // 4, height)], fill="red", width=5)
+        elif style == "beauty":
+            draw.line([(width // 2, 0), (width // 2, height)], fill="pink", width=5)
+        elif style == "comic":
+            draw.line(
+                [(3 * width // 4, 0), (3 * width // 4, height)], fill="blue", width=5
+            )
+        else:
+            # 預設處理方式
+            draw.line([(0, 0), (width, height)], fill="black", width=3)
 
-    # 將圖片轉為 base64 字串（回傳用）
-    buf = io.BytesIO()
-    image.save(buf, format="JPEG")
-    buf.seek(0)
-    base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
+        # 儲存圖片 + 編碼為 base64
+        image_id = str(uuid.uuid4())
+        filename = f"{image_id}.jpg"
+        save_dir = "./images"
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, filename)
+        image.save(save_path, format="JPEG")
 
-    # 回傳 UUID 和 base64
-    return JSONResponse(content={"uuid": image_id, "image_base64": base64_image})
+        buf = io.BytesIO()
+        image.save(buf, format="JPEG")
+        buf.seek(0)
+        base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        results.append(base64_image)
+
+    return JSONResponse(content={"results": results})
 
 
 # NOTE: this downloads image but does not show it in img tag

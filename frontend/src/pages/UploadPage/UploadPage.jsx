@@ -137,6 +137,18 @@ const UploadPage = () => {
       const formData = new FormData();
       formData.append("file", uploadedImage); // 注意這裡名稱要和 FastAPI 接口的參數名一致
 
+      // 將 selectedStyles 中為 true 的 key 收集起來
+      const selected = Object.entries(selectedStyles)
+        .filter(([key, value]) => key !== "all" && value)
+        .map(([key]) => key);
+
+      if (selected.length === 0) {
+        alert("Please select at least one style");
+        return;
+      }
+
+      selected.forEach((style) => formData.append("styles", style)); // 多個值同名 key
+
       // TODO: allow different url
       const response = await fetch("http://localhost:8000/generate", {
         method: "POST",
@@ -147,11 +159,13 @@ const UploadPage = () => {
         throw new Error("API 回傳錯誤");
       }
 
-      const result = await response.json();
-      addResultImage(result.image_base64);
-      console.log("API 回傳結果：", result);
+      const json = await response.json();
+      json.results.forEach((base64) => {
+        console.log(base64)
+        addResultImage(base64);
+      });
 
-      navigate("/result", { state: result });
+      navigate("/result");
     } catch (err) {
       console.error("處理失敗：", err);
       alert("圖片處理失敗，請再試一次");
