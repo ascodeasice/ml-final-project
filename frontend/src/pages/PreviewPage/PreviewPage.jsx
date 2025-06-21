@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useParams } from "wouter";
-import { useResultImages } from "../../stores/imageStore";
+import { useResultImages, useUploadedImage } from "../../stores/imageStore";
+import { ImgComparisonSlider } from "@img-comparison-slider/react";
 
 const containerStyle = {
   display: "flex",
@@ -16,8 +17,6 @@ const containerStyle = {
 const imageStyle = {
   width: "300px",
   height: "300px",
-  borderRadius: "10px",
-  marginBottom: "20px",
   objectFit: "cover",
   border: "2px solid #ccc",
 };
@@ -34,19 +33,24 @@ const buttonStyle = {
 };
 
 const PreviewPage = () => {
-  const { id:imageIndex } = useParams();
-  const { resultImages } = useResultImages()
+  const { id: imageIndex } = useParams();
+  const { resultImages } = useResultImages();
+  const { uploadedImage } = useUploadedImage();
 
-  const imageBase64=resultImages[imageIndex]
+  const imageBase64 = resultImages[imageIndex];
+  const imageUrl = URL.createObjectURL(uploadedImage); // 建立臨時的圖片網址
 
   return (
     <div style={containerStyle}>
       <h1>Your Final Product</h1>
-      <img
-        src={`data:image/jpeg;base64,${imageBase64}`}
-        alt="To Edit"
-        style={imageStyle}
-      />
+      <ImgComparisonSlider>
+        <img slot="first" src={imageUrl} style={imageStyle} />
+        <img
+          slot="second"
+          src={`data:image/jpeg;base64,${imageBase64}`}
+          style={imageStyle}
+        />
+      </ImgComparisonSlider>
 
       {/* Button Group */}
       <div>
