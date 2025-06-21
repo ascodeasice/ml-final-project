@@ -6,4 +6,13 @@ const useUploadedImage = create((set) => ({
     set({ uploadedImage: newUploadedImage }),
 }));
 
-export { useUploadedImage };
+const useResultImages = create((set) => ({
+  resultImages: [],
+  addResultImage: (newUploadedImage) =>
+    set((state) => ({
+      resultImages: [...state.resultImages, newUploadedImage],
+    })),
+  clearResultImages: () => set(() => ({ resultImages: [] })),
+}));
+
+export { useUploadedImage, useResultImages };

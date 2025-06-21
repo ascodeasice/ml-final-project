@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { TrophySpin } from "react-loading-indicators";
-import { useUploadedImage } from "../../stores/imageStore";
+import { useResultImages, useUploadedImage } from "../../stores/imageStore";
 
 const containerStyle = {
   display: "flex",
@@ -87,6 +87,7 @@ const UploadPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
   const { uploadedImage, setUploadedImage } = useUploadedImage();
+  const { addResultImage } = useResultImages();
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const [selectedStyles, setSelectedStyles] = useState({
@@ -146,13 +147,10 @@ const UploadPage = () => {
         throw new Error("API 回傳錯誤");
       }
 
-      // TODO: save the result and use in the next page
       const result = await response.json();
+      addResultImage(result.image_base64);
       console.log("API 回傳結果：", result);
 
-      // 這裡你可以：
-      // 1. 把 result.image_base64 儲存到全域狀態或 context
-      // 2. 或者用 navigate 搭配狀態傳到 /result 頁面
       navigate("/result", { state: result });
     } catch (err) {
       console.error("處理失敗：", err);
