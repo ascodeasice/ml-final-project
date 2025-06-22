@@ -97,6 +97,45 @@ const UploadPage = () => {
     all: false,
   });
 
+  const cropImageToSquare = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const size = Math.min(img.width, img.height);
+          const sx = (img.width - size) / 2;
+          const sy = (img.height - size) / 2;
+
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, sx, sy, size, size, 0, 0, size, size);
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const croppedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve({
+                file: croppedFile,
+                preview: canvas.toDataURL(file.type),
+              });
+            } else {
+              reject(new Error("無法轉換圖片為 Blob"));
+            }
+          }, file.type);
+        };
+        img.onerror = reject;
+        img.src = event.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleCheckboxChange = (style) => {
     if (style === "all") {
       const isAllChecked =
@@ -161,7 +200,7 @@ const UploadPage = () => {
 
       const json = await response.json();
       json.results.forEach((base64) => {
-        console.log(base64)
+        console.log(base64);
         addResultImage(base64);
       });
 
@@ -174,24 +213,37 @@ const UploadPage = () => {
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      setUploadedImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      console.log("選擇的圖片檔案：", file);
+      try {
+        const { file: croppedFile, preview } = await cropImageToSquare(file);
+        setUploadedImage(croppedFile);
+        setPreviewUrl(preview);
+        console.log("裁切後的圖片檔案：", croppedFile);
+      } catch (err) {
+        console.error("圖片裁切失敗：", err);
+        alert("圖片處理失敗");
+      }
     }
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = async (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (file) {
-      setUploadedImage(file);
-      setPreviewUrl(URL.createObjectURL(file)); // ← 預覽圖片
-      console.log("拖曳的圖片檔案：", file);
+      try {
+        const { file: croppedFile, preview } = await cropImageToSquare(file);
+        setUploadedImage(croppedFile);
+        setPreviewUrl(preview);
+        console.log("裁切後的圖片檔案（拖曳）：", croppedFile);
+      } catch (err) {
+        console.error("圖片裁切失敗：", err);
+        alert("圖片處理失敗");
+      }
     }
   };
+
   const handleClick = () => {
     fileInputRef.current.click(); // 手動觸發 input 點擊
   };
