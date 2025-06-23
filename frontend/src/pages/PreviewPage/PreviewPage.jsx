@@ -37,7 +37,7 @@ const PreviewPage = () => {
   const { resultImages } = useResultImages();
   const { uploadedImage } = useUploadedImage();
 
-  const imageBase64 = resultImages[imageIndex];
+  const imageBase64 = resultImages[imageIndex].base64;
   const imageUrl = URL.createObjectURL(uploadedImage); // 建立臨時的圖片網址
 
   return (

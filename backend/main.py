@@ -51,10 +51,10 @@ async def generate_images(file: UploadFile = File(...), styles: List[str] = Form
         output_img = generate_image_from_pil(original_image, model_path, device)
 
         buffer = io.BytesIO()
-        output_img.save(buffer, format="PNG") # save to buffer
+        output_img.save(buffer, format="PNG")  # save to buffer
         base64_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-        results.append(base64_str)
+        results.append({"style": style, "base64": base64_str})
 
     return {"results": results}
 

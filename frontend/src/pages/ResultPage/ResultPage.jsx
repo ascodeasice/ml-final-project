@@ -59,6 +59,10 @@ const tryAgainButtonStyle = {
   cursor: "pointer",
 };
 
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 const ResultPage = () => {
   const [, navigate] = useLocation();
   const { resultImages, clearResultImages } = useResultImages();
@@ -81,10 +85,11 @@ const ResultPage = () => {
     <div style={containerStyle}>
       <h1 style={{ marginBottom: "30px" }}>Here Are The Results!</h1>
 
-      {resultImages.map((base64, index) => (
+      {resultImages.map((image, index) => (
         <div style={imageBlockStyle} key={index}>
+          <h2>{capitalize(image.style)}</h2>
           <img
-            src={`data:image/jpeg;base64,${base64}`}
+            src={`data:image/jpeg;base64,${image.base64}`}
             alt={`Generated ${index}`}
             style={resultImageStyle}
           />
@@ -94,7 +99,7 @@ const ResultPage = () => {
             </Link>
             <button
               style={resultButtonStyle}
-              onClick={() => downloadBase64Image(base64, `image_${index}.jpg`)}
+              onClick={() => downloadBase64Image(image.base64, `${image.style}.jpg`)}
             >
               Download
             </button>

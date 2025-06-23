@@ -100,9 +100,9 @@ const UploadPage = () => {
   const cropImageToSquare = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = function (event) {
+      reader.onload = function(event) {
         const img = new Image();
-        img.onload = function () {
+        img.onload = function() {
           const size = Math.min(img.width, img.height);
           const sx = (img.width - size) / 2;
           const sy = (img.height - size) / 2;
@@ -199,9 +199,12 @@ const UploadPage = () => {
       }
 
       const json = await response.json();
-      json.results.forEach((base64) => {
-        console.log(base64);
-        addResultImage(base64);
+      json.results.forEach((res) => {
+        const { base64, style } = res;
+        addResultImage({
+          base64,
+          style,
+        });
       });
 
       navigate("/result");
