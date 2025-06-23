@@ -268,7 +268,6 @@ const UploadPage = () => {
         </div>
       )}
 
-      <h1 style={titleStyle}>Insert Your Image to Get Started</h1>
       <h2>Watch Your Creativity Take Shape</h2>
 
       <div
