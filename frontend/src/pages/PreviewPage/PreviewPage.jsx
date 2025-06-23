@@ -54,7 +54,6 @@ const PreviewPage = () => {
 
       {/* Button Group */}
       <div>
-        <button style={buttonStyle}>Save</button>
         <Link to="/result">
           <button style={buttonStyle}>Done</button>
         </Link>
