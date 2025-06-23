@@ -2,11 +2,14 @@ import os
 from typing import List
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from PIL import Image, ImageDraw
+from fastapi.responses import FileResponse
+from PIL import Image
 import io
 import uuid
 import base64
+
+import torch
+from ml_model.test import generate_image_from_pil
 
 
 app = FastAPI()
@@ -27,50 +30,33 @@ def read_root():
     return {"Hello": "World"}
 
 
-# TODO: use real models
 @app.post("/generate")
 async def generate_images(file: UploadFile = File(...), styles: List[str] = Form(...)):
-    """
-    根據 styles 清單產生多張圖片，每種風格一張，回傳 UUID 和 base64 列表。
-    """
     original_image = Image.open(file.file).convert("RGB")
-    width, height = original_image.size
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    results = []  # 存每張處理後圖片的 base64 和 UUID
+    style_to_model = {
+        "comic": "comic_model.pth",
+        "cartoon3D": "3D_Cartoon_model.pth",
+        "beauty": "Beauty_model.pth",
+    }
+
+    results = []
 
     for style in styles:
-        image = original_image.copy()
-        draw = ImageDraw.Draw(image)
+        if style not in style_to_model:
+            continue  # 忽略不支援的風格
 
-        # 根據風格進行不同處理（範例處理）
-        if style == "cartoon3D":
-            draw.line([(width // 4, 0), (width // 4, height)], fill="red", width=5)
-        elif style == "beauty":
-            draw.line([(width // 2, 0), (width // 2, height)], fill="pink", width=5)
-        elif style == "comic":
-            draw.line(
-                [(3 * width // 4, 0), (3 * width // 4, height)], fill="blue", width=5
-            )
-        else:
-            # 預設處理方式
-            draw.line([(0, 0), (width, height)], fill="black", width=3)
+        model_path = style_to_model[style]
+        output_img = generate_image_from_pil(original_image, model_path, device)
 
-        # 儲存圖片 + 編碼為 base64
-        image_id = str(uuid.uuid4())
-        filename = f"{image_id}.jpg"
-        save_dir = "./images"
-        os.makedirs(save_dir, exist_ok=True)
-        save_path = os.path.join(save_dir, filename)
-        image.save(save_path, format="JPEG")
+        buffer = io.BytesIO()
+        output_img.save(buffer, format="PNG") # save to buffer
+        base64_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-        buf = io.BytesIO()
-        image.save(buf, format="JPEG")
-        buf.seek(0)
-        base64_image = base64.b64encode(buf.getvalue()).decode("utf-8")
+        results.append(base64_str)
 
-        results.append(base64_image)
-
-    return JSONResponse(content={"results": results})
+    return {"results": results}
 
 
 # NOTE: this downloads image but does not show it in img tag
