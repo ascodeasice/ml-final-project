@@ -1,8 +1,5 @@
 images/
 
-# depends
-*.pth
-
 # My files
 .mypy_cache
 .null-ls*
