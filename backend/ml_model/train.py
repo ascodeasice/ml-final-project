@@ -222,6 +222,7 @@ def train(input_dir, label_dir, model_save_path, results_dir, epochs=50, batch_s
     torch.save(G.state_dict(), model_save_path)
     print(f"模型已存為 {model_save_path}")
 
+    # ==== 繪製 Loss Curve ====
     plt.figure(figsize=(12,8))
     #plt.suptitle("Training Loss Curves of 3D_Cartoon model", fontsize=16)
     plt.suptitle("Training Loss Curves of Comic model", fontsize=16)
@@ -263,6 +264,7 @@ def train(input_dir, label_dir, model_save_path, results_dir, epochs=50, batch_s
     plt.show()
 
 if __name__ == '__main__':
+    #3D Rendered Cartoon Style 訓練 （900 pictures）
     # train(
     #     input_dir=r'C:\Users\USER\Desktop\mlclass\dataset\dataset\3D Rendered Cartoon Style\train\input',
     #     label_dir=r'C:\Users\USER\Desktop\mlclass\dataset\dataset\3D Rendered Cartoon Style\train\label',
@@ -273,7 +275,7 @@ if __name__ == '__main__':
     #     device='cuda'
     # )
 
-    # Comic Style 訓練（註解打開即可用）
+    # Comic Style 訓練（9501 pictures）
      train(
         input_dir=r'C:\Users\USER\Desktop\mlclass\dataset\dataset\Comic Style\train\input',
         label_dir=r'C:\Users\USER\Desktop\mlclass\dataset\dataset\Comic Style\train\label',
@@ -284,7 +286,7 @@ if __name__ == '__main__':
         device='cuda'
     )
 
-    # # Beauty Filter Style 訓練（註解打開即可用）
+    # # Beauty Filter Style 訓練（2500 pictures）
     # train(
     #    input_dir= r'C:\Users\USER\Desktop\mlclass\dataset\dataset\Beauty Filter Style\train\input',
     #    label_dir= r'C:\Users\USER\Desktop\mlclass\dataset\dataset\Beauty Filter Style\train\label',
@@ -295,5 +297,3 @@ if __name__ == '__main__':
     #    device='cuda'
     # )
 
-
-###放著讓他跑 感謝~~~###
