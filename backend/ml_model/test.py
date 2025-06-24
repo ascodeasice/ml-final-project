@@ -5,7 +5,7 @@ from torchvision.utils import save_image, make_grid
 import os
 
 
-# ==== Pix2Pix 論文 U-Net Generator (需與 train.py 完全一致) ====
+# ==== Pix2Pix  U-Net Generator  ====
 class UNetBlock(torch.nn.Module):
     def __init__(
         self,
@@ -120,19 +120,20 @@ def generate_image_from_pil(img: Image.Image, model_path: str, device="cuda"):
 
 
 if __name__ == "__main__":
-    # ===== 修改這三個路徑 =====
-    # input_path = r'C:\Users\USER\Downloads\S__240320566.jpg'   # 你的 input 圖
-    input_path = r"C:\Users\USER\Downloads\ty.png"  # 你的 input 圖
+    # ===== input 圖 =====
+    # input_path = r'C:\Users\USER\Downloads\S__240320566.jpg'   
+    input_path = r"C:\Users\USER\Downloads\ty.png"  
 
+    # ===== 訓練好的模型路徑 =====
     # model_path = r'3D_Cartoon_model.pth'
     model_path = r"comic_model.pth"
     # model_path = r'Beauty_model.pth'
-    # 訓練好的模型路徑
+    
+    # ===== 輸出對比圖名稱 =====
     # out_path   = r"myphoto_3D_Cartoon_compare.png"
     out_path = r"myphoto_Comic_compare.png"
-    # out_path   = r"myphoto_Beauty_compare.png"                                                                # 輸出對比圖名稱
+    # out_path   = r"myphoto_Beauty_compare.png"                                                             
 
-    # GPU 有的話優先用 GPU，否則自動用 CPU
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     test_and_compare(input_path, model_path, out_path, device)
